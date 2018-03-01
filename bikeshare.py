@@ -2,7 +2,6 @@ import os           # File system path resolution
 import time         # Time measurement for statistic collection
 import calendar     # Calendar month and day information
 import datetime     # Date utilities
-from tabulate import tabulate     # Table formatting for console display
 import pandas       # Numerical analysis and csv import
 
 
@@ -50,6 +49,7 @@ def open_file(file_path: str):
                            sep=',',
                            header=0,
                            parse_dates=[0,1],
+                           index_col=0,
                            memory_map=True)
     
     return data
@@ -308,12 +308,13 @@ def display_tabular_data(city_file):
 
     x = 5   # number of rows to display per pass
     i = 0   # counter for current start row
-    rows = city_file.shape[0]
+    rows, cols = city_file.shape
 
     print('\nUser trip details:')
     while True:
         # Print x rows in the range 
-        print(tabulate(city_file[i:i+x], headers='keys', showindex=False, tablefmt='psql'))
+        # print(tabulate(city_file[i:i+x], headers='keys', showindex=False, tablefmt='psql'))
+        print(city_file[i:i+x].to_string(index=False, na_rep='', justify='left'))
         i = i + x
         
         if i > rows:
@@ -426,14 +427,16 @@ def statistics():
     # What are the counts of each user type?
     start_time = time.time()
     print('User type counts:')
-    print(tabulate(users(city_data), headers=['User Type', 'Count'], showindex=False, tablefmt='psql'))
+    # print(tabulate(users(city_data), headers=['User Type', 'Count'], showindex=False, tablefmt='psql'))
+    print(users(city_data).to_string(index=False, header=['User Type', 'Count']))
     print("({0:.2f} seconds)\n".format(time.time() - start_time))
 
     # What are the counts of gender?    
     if 'gender' in city_data_elements:
         start_time = time.time()
         print('Gender counts:')
-        print(tabulate(gender(city_data), headers=['Gender', 'Count'], showindex=False, tablefmt='psql'))
+        #print(tabulate(gender(city_data), headers=['Gender', 'Count'], showindex=False, tablefmt='psql'))
+        print(gender(city_data).to_string(index=False, header=['Gender', 'Count']))
         print("({0:.2f} seconds)\n".format(time.time() - start_time))
     else:
         print('Gender data not available.\n')
